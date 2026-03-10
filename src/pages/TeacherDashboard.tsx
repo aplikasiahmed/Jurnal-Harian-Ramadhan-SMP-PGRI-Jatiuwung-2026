@@ -33,7 +33,7 @@ export default function TeacherDashboard() {
       if (supabase) {
         let query = supabase
           .from('jurnal_ramadhan')
-          .select('*')
+          .select('*, students(namalengkap, Kelas)')
           .order('created_at', { ascending: false });
 
         if (dateFilter) {
@@ -158,9 +158,18 @@ export default function TeacherDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredEntries.map((entry) => (
               <Card key={entry.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="bg-emerald-50 px-4 py-3 border-b flex justify-between items-center">
-                  <span className="font-bold text-emerald-800">NIS: {entry.nis}</span>
-                  <span className="text-xs text-emerald-700 font-semibold bg-emerald-100 px-2.5 py-1 rounded-full">
+                <div className="bg-emerald-50 px-4 py-3 border-b flex justify-between items-start sm:items-center">
+                  <div>
+                    <span className="font-bold text-emerald-800 block sm:inline">
+                      {entry.students?.namalengkap || `NIS: ${entry.nis}`}
+                    </span>
+                    {entry.students?.Kelas && (
+                      <span className="text-xs text-emerald-600 sm:ml-2 block sm:inline mt-1 sm:mt-0">
+                        Kelas: {entry.students.Kelas} | NIS: {entry.nis}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-emerald-700 font-semibold bg-emerald-100 px-2.5 py-1 rounded-full whitespace-nowrap ml-2">
                     {entry.puasa}
                   </span>
                 </div>

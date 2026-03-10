@@ -39,12 +39,12 @@ export default function StudentEntry() {
       if (supabase) {
         const { data, error } = await supabase
           .from('students')
-          .select('name')
+          .select('namalengkap, Kelas')
           .eq('nis', nis)
           .single();
         
         if (data) {
-          setStudentName(data.name);
+          setStudentName(`${data.namalengkap} (Kelas ${data.Kelas})`);
         } else {
           setStudentName('Siswa (Data tidak ditemukan, tetap bisa mengisi)');
         }
