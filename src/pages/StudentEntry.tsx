@@ -8,18 +8,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src
 import { BookOpen, CheckCircle2, Moon, Sun, Lock } from 'lucide-react';
 import Swal from 'sweetalert2';
 
+const getLocalDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function StudentEntry() {
   const navigate = useNavigate();
   const [nis, setNis] = useState('');
   const [isNisSubmitted, setIsNisSubmitted] = useState(false);
   const [studentName, setStudentName] = useState('');
+  const [rawStudentName, setRawStudentName] = useState('');
+  const [studentClass, setStudentClass] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
-    tanggal: '',
-    puasa: 'Penuh',
+    tanggal: getLocalDate(),
+    puasa: 'BERPUASA',
     alasan_puasa: '',
     shalat_subuh: false,
     shalat_dzuhur: false,
@@ -28,8 +38,12 @@ export default function StudentEntry() {
     shalat_isya: false,
     shalat_tarawih: false,
     shalat_sunnah: '',
+    tadarus: false,
     tadarus_surah: '',
     tadarus_ayat: '',
+    bersedekah: false,
+    membantu_orang_tua: false,
+    deskripsi_membantu_orang_tua: '',
     kebaikan: '',
   });
 
@@ -41,6 +55,11 @@ export default function StudentEntry() {
         title: 'NIS Wajib Diisi!',
         text: 'Silakan masukkan NIS Anda terlebih dahulu.',
         confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
       });
       return;
     }
@@ -55,17 +74,61 @@ export default function StudentEntry() {
           .single();
         
         if (data) {
-          setStudentName(`${data.namalengkap} (Kelas ${data.Kelas})`);
-          setIsNisSubmitted(true);
-          Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: `Selamat datang, ${data.namalengkap}`,
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
+          // Check if journal already submitted today
+          const today = getLocalDate();
+          const { data: existingEntry } = await supabase
+            .from('jurnal_ramadhan')
+            .select('id')
+            .eq('nis', nis)
+            .eq('tanggal', today)
+            .maybeSingle();
+
+          if (existingEntry) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Sudah Mengisi Jurnal!',
+              text: 'Anda sudah mengisi jurnal Ramadhan untuk hari ini. Jurnal hanya dapat diisi 1x sehari.',
+              confirmButtonColor: '#047857',
+              width: 'auto',
+              customClass: {
+                popup: 'rounded-2xl text-sm max-w-[400px]',
+                title: 'text-lg font-bold text-emerald-900',
+              }
+            });
+            return;
+          }
+
+          const confirmResult = await Swal.fire({
+            icon: 'info',
+            title: 'Wajib Dibaca',
+            text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
+            showCancelButton: true,
+            confirmButtonText: 'IYA',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#047857',
+            cancelButtonColor: '#d33',
+            width: 'auto',
+            customClass: {
+              popup: 'rounded-2xl text-sm max-w-[400px]',
+              title: 'text-lg font-bold text-emerald-900',
+            }
           });
+
+          if (confirmResult.isConfirmed) {
+            setStudentName(`${data.namalengkap} (Kelas ${data.Kelas})`);
+            setRawStudentName(data.namalengkap);
+            setStudentClass(data.Kelas);
+            setIsNisSubmitted(true);
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: `Selamat datang, ${data.namalengkap}`,
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+          }
         } else {
           Swal.fire({
             toast: true,
@@ -76,11 +139,36 @@ export default function StudentEntry() {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
+            width: 'auto',
+            customClass: {
+              popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+              title: 'text-base sm:text-lg',
+            }
           });
         }
       } else {
-        setStudentName('Siswa (Mode Demo)');
-        setIsNisSubmitted(true);
+        const confirmResult = await Swal.fire({
+          icon: 'info',
+          title: 'Wajib Dibaca',
+          text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
+          showCancelButton: true,
+          confirmButtonText: 'IYA',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#047857',
+          cancelButtonColor: '#d33',
+          width: 'auto',
+          customClass: {
+            popup: 'rounded-2xl text-sm max-w-[400px]',
+            title: 'text-lg font-bold text-emerald-900',
+          }
+        });
+
+        if (confirmResult.isConfirmed) {
+          setStudentName('Siswa (Mode Demo)');
+          setRawStudentName('Siswa Demo');
+          setStudentClass('Demo');
+          setIsNisSubmitted(true);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -93,6 +181,11 @@ export default function StudentEntry() {
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
       });
     } finally {
       setLoading(false);
@@ -101,18 +194,186 @@ export default function StudentEntry() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi Wajib Diisi
+    if (!formData.tanggal) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Tanggal Wajib Diisi!',
+        text: 'Silakan isi tanggal jurnal terlebih dahulu.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    if (formData.puasa === 'TIDAK PUASA' && !formData.alasan_puasa.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Alasan Puasa Wajib Diisi!',
+        text: 'Silakan isi alasan mengapa Anda tidak berpuasa.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    if (formData.puasa === 'BERPUASA') {
+      const allShalatWajib = formData.shalat_subuh && formData.shalat_dzuhur && formData.shalat_ashar && formData.shalat_maghrib && formData.shalat_isya;
+      if (!allShalatWajib) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Shalat Wajib Harus Penuh!',
+          text: 'Karena Anda berpuasa penuh, maka kelima Shalat Wajib harus dilaksanakan.',
+          confirmButtonColor: '#047857',
+          width: 'auto',
+          customClass: {
+            popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+            title: 'text-base sm:text-lg',
+          }
+        });
+        return;
+      }
+    }
+
+    if (formData.puasa !== 'SEDANG HAID' && formData.tadarus && (!formData.tadarus_surah.trim() || !formData.tadarus_ayat.trim())) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Tadarrus Al-Quran Wajib Diisi!',
+        text: 'Silakan isi nama Surah dan Ayat yang dibaca.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    if (!formData.membantu_orang_tua) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Wajib Membantu Orang Tua!',
+        text: 'Membantu orang tua adalah kewajiban. Silakan pilih IYA dan sebutkan apa yang Anda lakukan.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    if (formData.membantu_orang_tua && !formData.deskripsi_membantu_orang_tua.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Deskripsi Wajib Diisi!',
+        text: 'Silakan isi deskripsi kegiatan membantu orang tua yang Anda lakukan hari ini.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    // Helper to format date to DD-MM-YYYY
+    const formatDate = (dateString: string) => {
+      const [year, month, day] = dateString.split('-');
+      return `${day}-${month}-${year}`;
+    };
+
+    // Konfirmasi sebelum kirim
+    const confirmResult = await Swal.fire({
+      icon: 'question',
+      title: 'Yakin ingin Kirim ?',
+      text: `Saya mengirim jurnal harian atas nama ${rawStudentName}, Kelas ${studentClass}, pada tanggal ${formatDate(formData.tanggal)}.`,
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Kirim',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#047857',
+      cancelButtonColor: '#d33',
+      width: 'auto',
+      customClass: {
+        popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+        title: 'text-base sm:text-lg',
+      }
+    });
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
     setLoading(true);
     
     try {
       if (supabase) {
+        // Cek duplikasi pengisian per hari
+        const { data: existingEntry } = await supabase
+          .from('jurnal_ramadhan')
+          .select('id')
+          .eq('nis', nis)
+          .eq('tanggal', formData.tanggal)
+          .maybeSingle();
+
+        if (existingEntry) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Sudah Mengisi!',
+            text: `Anda sudah mengisi Jurnal Harian Ramadhan pada tanggal ${formatDate(formData.tanggal)}. Hanya diperbolehkan mengisi 1x dalam sehari.`,
+            confirmButtonColor: '#047857',
+            width: 'auto',
+            customClass: {
+              popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+              title: 'text-base sm:text-lg',
+            }
+          });
+          setLoading(false);
+          return;
+        }
+
+        const isHaid = formData.puasa === 'SEDANG HAID';
+
+        const formatToggle = (val: boolean) => val ? 'IYA' : 'TIDAK';
+
+        const payload = {
+          nis,
+          nama_siswa: rawStudentName,
+          kelas: studentClass,
+          tanggal: formData.tanggal,
+          puasa: formData.puasa,
+          alasan_puasa: isHaid ? null : formData.alasan_puasa,
+          shalat_subuh: isHaid ? null : formatToggle(formData.shalat_subuh),
+          shalat_dzuhur: isHaid ? null : formatToggle(formData.shalat_dzuhur),
+          shalat_ashar: isHaid ? null : formatToggle(formData.shalat_ashar),
+          shalat_maghrib: isHaid ? null : formatToggle(formData.shalat_maghrib),
+          shalat_isya: isHaid ? null : formatToggle(formData.shalat_isya),
+          shalat_tarawih: isHaid ? null : formatToggle(formData.shalat_tarawih),
+          shalat_sunnah: isHaid ? null : formData.shalat_sunnah,
+          tadarus: isHaid ? null : formatToggle(formData.tadarus),
+          tadarus_surah: isHaid ? null : formData.tadarus_surah,
+          tadarus_ayat: isHaid ? null : formData.tadarus_ayat,
+          bersedekah: formatToggle(formData.bersedekah),
+          membantu_orang_tua: formatToggle(formData.membantu_orang_tua),
+          deskripsi_membantu_orang_tua: formData.membantu_orang_tua ? formData.deskripsi_membantu_orang_tua : null,
+          kebaikan: formData.kebaikan,
+        };
+
         const { error } = await supabase
           .from('jurnal_ramadhan')
-          .insert([
-            {
-              nis,
-              ...formData
-            }
-          ]);
+          .insert([payload]);
           
         if (error) throw error;
       }
@@ -147,8 +408,8 @@ export default function StudentEntry() {
               <CheckCircle2 className="w-16 h-16 text-emerald-500" />
               <CardTitle className="text-xl text-emerald-800">Alhamdulillah!</CardTitle>
               <p className="text-sm text-gray-600">Jurnal Ramadhan hari ini berhasil disimpan.</p>
-              <Button onClick={() => window.location.reload()} className="mt-4 min-h-[44px] w-full sm:w-auto text-sm">
-                Kembali ke Awal
+              <Button onClick={() => window.location.reload()} className="mt-4 min-h-[44px] w-full sm:w-auto text uppercase text-sm">
+                Tutup
               </Button>
             </CardContent>
           </Card>
@@ -158,99 +419,115 @@ export default function StudentEntry() {
   }
 
   return (
-    <div className="min-h-screen bg-emerald-50 flex flex-col">
+    <div className="min-h-screen bg-[#f8faf9] flex flex-col font-sans relative overflow-hidden">
+      {/* Islamic Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23047857' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
+
       {/* Header with Login Guru Button */}
-      <header className="sticky top-0 z-10 bg-emerald-700 text-white shadow-md">
+      <header className="sticky top-0 z-10 bg-emerald-800 text-white shadow-lg border-b border-emerald-700/50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/GAMBAR/Logo%20PGRI.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHQU1CQVIvTG9nbyBQR1JJLnBuZyIsImlhdCI6MTc3MzE1NjUzNiwiZXhwIjoxODA0NjkyNTM2fQ.TthcwawgwLCFfoFGR08xAD_cYXtRmypgCoeosILn2G8" alt="Logo PGRI" className="w-8 h-8 sm:w-10 sm:h-10 object-contain bg-white rounded-full p-0.5" referrerPolicy="no-referrer" />
-            <span className="font-bold text-xs sm:text-sm truncate">Jurnal Ramadhan</span>
+          <div className="flex items-center gap-3">
+            <div className="bg-white p-1 rounded-full shadow-sm">
+              <img src="https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/GAMBAR/Logo%20PGRI.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHQU1CQVIvTG9nbyBQR1JJLnBuZyIsImlhdCI6MTc3MzE1NjUzNiwiZXhwIjoxODA0NjkyNTM2fQ.TthcwawgwLCFfoFGR08xAD_cYXtRmypgCoeosILn2G8" alt="Logo PGRI" className="w-8 h-8 sm:w-9 sm:h-9 object-contain" referrerPolicy="no-referrer" />
+            </div>
+            <span className="font-bold text-sm sm:text-base tracking-wide">Jurnal Harian Ramadhan</span>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
-            className="bg-transparent border-white/30 text-white hover:bg-emerald-600 hover:text-white min-h-[40px] text-xs sm:text-sm"
+            className="bg-emerald-700/50 border-emerald-500/50 text-white hover:bg-emerald-600 hover:text-white min-h-[38px] text-xs sm:text-sm shadow-sm backdrop-blur-sm transition-all"
             onClick={() => navigate('/login')}
           >
             <Lock className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Login Guru</span>
-            <span className="sm:hidden ml-2">Guru</span>
+            <span className="sm:hidden ml-1">Guru</span>
           </Button>
         </div>
       </header>
 
-      <div className="flex-1 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8 relative z-0">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <img src="https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/GAMBAR/Logo%20PGRI.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHQU1CQVIvTG9nbyBQR1JJLnBuZyIsImlhdCI6MTc3MzE1NjUzNiwiZXhwIjoxODA0NjkyNTM2fQ.TthcwawgwLCFfoFGR08xAD_cYXtRmypgCoeosILn2G8" alt="Logo PGRI" className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 object-contain" referrerPolicy="no-referrer" />
-            <h1 className="text-xl sm:text-2xl font-bold text-emerald-900 mb-2">Jurnal Harian</h1>
-            <p className="text-xs sm:text-sm text-emerald-700">SMP PGRI Jatiuwung Kota Tangerang</p>
+          <div className="text-center mb-8 sm:mb-10">
+            <div className="inline-block bg-white p-3 rounded-2xl shadow-sm mb-5 border border-emerald-100">
+              <img src="https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/GAMBAR/Logo%20PGRI.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHQU1CQVIvTG9nbyBQR1JJLnBuZyIsImlhdCI6MTc3MzE1NjUzNiwiZXhwIjoxODA0NjkyNTM2fQ.TthcwawgwLCFfoFGR08xAD_cYXtRmypgCoeosILn2G8" alt="Logo PGRI" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" referrerPolicy="no-referrer" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-emerald-900 mb-2 tracking-tight">Jurnal Harian Ramadhan</h1>
+            <p className="text-1xl sm:text-base text-emerald-900 mb-2 font-medium">1447 H / 2026 M</p>
+            <p className="text-sm sm:text-base text-emerald-700/80 font-medium">SMP PGRI Jatiuwung Kota Tangerang</p>
           </div>
 
           {!isNisSubmitted ? (
-            <Card className="max-w-md mx-auto">
-              <CardHeader className="p-4 sm:p-6 text-center">
-                <CardTitle className="text-lg">Mulai Pengisian</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">Masukkan Nomor Induk Siswa (NIS) Anda untuk melanjutkan</CardDescription>
+            <div className="space-y-6">
+              <Card className="max-w-md mx-auto border-emerald-100 shadow-xl shadow-emerald-900/5 rounded-2xl overflow-hidden">
+                <div className="h-2 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
+                <CardHeader className="p-6 sm:p-8 text-center bg-white">
+                <CardDescription className="text-sm mt-2">Masukkan Nomor Induk Siswa (NIS) untuk Mengisi Jurnal Harian Ramadhan</CardDescription>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0 text-center">
-                <form onSubmit={handleNisSubmit} className="space-y-4">
+              <CardContent className="p-6 sm:p-8 pt-0 text-center bg-white">
+                <form onSubmit={handleNisSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="nis" className="text-sm">Nomor Induk Siswa (NIS)</Label>
                     <Input
                       id="nis"
-                      placeholder="Contoh: 2023001"
+                      placeholder="Nomor Induk Siswa (NIS)"
                       value={nis}
                       onChange={(e) => setNis(e.target.value)}
-                      required
-                      className="min-h-[44px] text-base text-center"
+                      className="min-h-[42px] text-base text-center text-bold rounded-xl border-emerald-200 focus-visible:ring-emerald-500 bg-emerald-50/50"
                     />
                   </div>
-                  <Button type="submit" className="w-full min-h-[44px] text-sm" disabled={loading}>
-                    {loading ? 'Memeriksa...' : 'Lanjut'}
+                  <Button type="submit" className="w-full min-h-[52px] text-base font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all" disabled={loading}>
+                    {loading ? 'Memeriksa NIS...' : 'MASUK'}
                   </Button>
                 </form>
               </CardContent>
             </Card>
+            <p className="text-center text-xs sm:text-sm text-gray-500">
+              <a 
+                href="https://wa.me/6282175787863?text=Assalamu'alaikum%20Wr%20Wb.%20Mohon%20Maaf%20Pak%20Ahmed%2C%20Saya%20Nama%20........%20Kelas%20.....%20Ingin%20mengetahui%20Nomor%20NIS%20saya%20untuk%20pengisian%20Jurnal%20Harian%20Ramadhan" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+              >
+                Hubungi
+              </a>{' '}
+              Pak Ahmed Jika tidak mengetahui nomor NIS Siswa
+            </p>
+            </div>
           ) : (
-            <Card>
-              <CardHeader className="p-4 sm:p-6 bg-emerald-600 text-white rounded-t-xl">
-                <CardTitle className="text-lg">Form Jurnal Harian</CardTitle>
-                <CardDescription className="text-emerald-100 text-xs sm:text-sm">
-                  NIS: {nis} {studentName && `| Nama: ${studentName}`}
+            <Card className="border-emerald-100 shadow-xl shadow-emerald-900/5 rounded-2xl overflow-hidden">
+              <CardHeader className="p-5 sm:p-8 bg-gradient-to-br from-emerald-700 to-emerald-800 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                  <Moon className="w-32 h-32" />
+                </div>
+                <CardTitle className="text-xl sm:text-2xl font-bold relative z-10">{studentName}</CardTitle>
+                <CardDescription className="text-emerald-50 text-sm sm:text-base mt-2 relative z-10 font-medium opacity-90">
+                  NIS: {nis}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 mt-4">
-                <form onSubmit={handleFormSubmit} className="space-y-6 sm:space-y-8">
+              <CardContent className="p-5 sm:p-8 mt-2 bg-white">
+                <form onSubmit={handleFormSubmit} className="space-y-8 sm:space-y-10">
                   {/* Tanggal */}
-                  <div className="space-y-3">
-                    <Label htmlFor="tanggal" className="text-sm font-semibold">Tanggal</Label>
+                  <div className="space-y-3 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/50">
+                    <Label htmlFor="tanggal" className="text-base font-semibold text-emerald-900">Tanggal Pengisian</Label>
                     <Input
                       id="tanggal"
-                      type={formData.tanggal ? "date" : "text"}
-                      placeholder="Masukkan Tanggal"
-                      onFocus={(e) => (e.target.type = 'date')}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = 'text';
-                      }}
+                      type="date"
                       value={formData.tanggal}
-                      onChange={(e) => setFormData({...formData, tanggal: e.target.value})}
-                      required
-                      className="min-h-[44px] text-sm"
+                      readOnly
+                      className="min-h-[48px] text-base rounded-lg border-emerald-200 bg-gray-100 text-gray-500 cursor-not-allowed"
                     />
                   </div>
 
                   {/* Puasa */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Status Puasa</Label>
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Status Puasa Hari Ini</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {['Penuh', 'Setengah Hari', 'Tidak'].map((status) => (
+                      {['BERPUASA', 'TIDAK PUASA', 'SEDANG HAID'].map((status) => (
                         <label
                           key={status}
-                          className={`flex items-center justify-center p-4 sm:p-3 border rounded-lg cursor-pointer transition-colors min-h-[44px] ${
+                          className={`flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-all duration-200 min-h-[52px] ${
                             formData.puasa === status
-                              ? 'bg-emerald-100 border-emerald-500 text-emerald-800 ring-2 ring-emerald-500 ring-offset-1'
-                              : 'bg-white hover:bg-gray-50'
+                              ? 'bg-emerald-50 border-emerald-500 text-emerald-800 ring-1 ring-emerald-500 shadow-sm'
+                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-emerald-200'
                           }`}
                         >
                           <input
@@ -261,26 +538,28 @@ export default function StudentEntry() {
                             onChange={(e) => setFormData({...formData, puasa: e.target.value})}
                             className="sr-only"
                           />
-                          <span className="text-xs sm:text-sm font-medium">{status}</span>
+                          <span className="text-sm sm:text-base font-semibold">{status}</span>
                         </label>
                       ))}
                     </div>
-                    {(formData.puasa === 'Setengah Hari' || formData.puasa === 'Tidak') && (
-                      <div className="mt-3 animate-in fade-in slide-in-from-top-2">
-                        <Input
-                          placeholder="Masukkan Alasannya"
+                    {formData.puasa === 'TIDAK PUASA' && (
+                      <div className="mt-4 animate-in fade-in slide-in-from-top-2">
+                        <textarea
+                          rows={3}
+                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
+                          placeholder="Tuliskan alasan mengapa tidak berpuasa..."
                           value={formData.alasan_puasa}
                           onChange={(e) => setFormData({...formData, alasan_puasa: e.target.value})}
-                          className="min-h-[44px] text-sm"
-                          required
                         />
                       </div>
                     )}
                   </div>
 
-                  {/* Shalat Wajib */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Shalat Wajib</Label>
+                  {formData.puasa !== 'SEDANG HAID' && (
+                    <>
+                      {/* Shalat Wajib */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Shalat Wajib 5 Waktu</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {[
                         { id: 'shalat_subuh', label: 'Subuh', icon: Moon },
@@ -289,10 +568,12 @@ export default function StudentEntry() {
                         { id: 'shalat_maghrib', label: 'Maghrib', icon: Moon },
                         { id: 'shalat_isya', label: 'Isya', icon: Moon },
                       ].map((shalat) => (
-                        <div key={shalat.id} className="flex items-center justify-between p-3 border rounded-lg bg-white shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <shalat.icon className="w-5 h-5 text-emerald-600 opacity-70" />
-                            <span className="text-sm font-medium">{shalat.label}</span>
+                        <div key={shalat.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-emerald-50 p-2 rounded-lg">
+                              <shalat.icon className="w-5 h-5 text-emerald-600" />
+                            </div>
+                            <span className="text-sm font-semibold text-gray-700">{shalat.label}</span>
                           </div>
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -301,9 +582,9 @@ export default function StudentEntry() {
                               onChange={() => handleCheckboxChange(shalat.id)}
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                            <span className="ml-3 text-xs font-bold w-12 text-gray-700">
-                              {formData[shalat.id as keyof typeof formData] ? 'SHOLAT' : 'TIDAK'}
+                            <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            <span className={`ml-3 text-xs font-bold w-12 ${formData[shalat.id as keyof typeof formData] ? 'text-emerald-700' : 'text-gray-400'}`}>
+                              {formData[shalat.id as keyof typeof formData] ? 'IYA' : 'TIDAK'}
                             </span>
                           </label>
                         </div>
@@ -312,88 +593,176 @@ export default function StudentEntry() {
                   </div>
 
                   {/* Shalat Tarawih */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Shalat Tarawih</Label>
-                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
-                      <label className="flex items-center space-x-3 cursor-pointer p-2 sm:p-0 border rounded-lg sm:border-none">
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Shalat Tarawih</Label>
+                    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-50 p-2 rounded-lg">
+                          <Moon className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">Tarawih</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
                         <input
-                          type="radio"
-                          checked={formData.shalat_tarawih === true}
-                          onChange={() => setFormData({...formData, shalat_tarawih: true})}
-                          className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                          type="checkbox"
+                          checked={formData.shalat_tarawih}
+                          onChange={() => handleCheckboxChange('shalat_tarawih')}
+                          className="sr-only peer"
                         />
-                        <span className="text-sm">Ya, saya melaksanakan</span>
-                      </label>
-                      <label className="flex items-center space-x-3 cursor-pointer p-2 sm:p-0 border rounded-lg sm:border-none">
-                        <input
-                          type="radio"
-                          checked={formData.shalat_tarawih === false}
-                          onChange={() => setFormData({...formData, shalat_tarawih: false})}
-                          className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span className="text-sm">Tidak</span>
+                        <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className={`ml-3 text-xs font-bold w-12 ${formData.shalat_tarawih ? 'text-emerald-700' : 'text-gray-400'}`}>
+                          {formData.shalat_tarawih ? 'IYA' : 'TIDAK'}
+                        </span>
                       </label>
                     </div>
                   </div>
 
                   {/* Shalat Sunnah */}
-                  <div className="space-y-3">
-                    <Label htmlFor="shalat_sunnah" className="text-sm font-semibold">Shalat Sunnah</Label>
-                    <p className="text-xs text-gray-500 -mt-2 mb-2">Pengisian sholat sunnah yang dilakukan siswa (contoh: tahajjud, dhuha, rawatib, dan lain-lain)</p>
+                  <div className="space-y-4">
+                    <Label htmlFor="shalat_sunnah" className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Shalat Sunnah (Opsional)</Label>
+                    <p className="text-sm text-gray-500 -mt-2 mb-3">Sebutkan sholat sunnah yang dilakukan (contoh: Tahajjud, Dhuha, Rawatib)</p>
                     <Input
                       id="shalat_sunnah"
-                      placeholder="Masukkan Sholat Sunnah yang dilakukan"
+                      placeholder="Ketik sholat sunnah di sini..."
                       value={formData.shalat_sunnah}
                       onChange={(e) => setFormData({...formData, shalat_sunnah: e.target.value})}
-                      className="min-h-[44px] text-sm"
+                      className="min-h-[48px] text-base rounded-lg border-gray-200 focus-visible:ring-emerald-500"
                     />
                   </div>
+                    </>
+                  )}
 
-                  {/* Tadarus */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-emerald-600" />
-                      Tadarus Al-Quran
-                    </Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border">
-                      <div className="space-y-2">
-                        <Label htmlFor="surah" className="text-xs text-gray-700">Nama Surah</Label>
-                        <Input
-                          id="surah"
-                          placeholder="Contoh: Al-Baqarah"
-                          value={formData.tadarus_surah}
-                          onChange={(e) => setFormData({...formData, tadarus_surah: e.target.value})}
-                          className="min-h-[44px] bg-white text-sm"
-                        />
+                  {/* Bersedekah Harian */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Amalan Sedekah</Label>
+                    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-50 p-2 rounded-lg">
+                          <span className="text-emerald-600 font-bold text-lg leading-none">Rp</span>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">Bersedekah Hari Ini</span>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="ayat" className="text-xs text-gray-700">Ayat</Label>
-                        <Input
-                          id="ayat"
-                          placeholder="Contoh: 1-10"
-                          value={formData.tadarus_ayat}
-                          onChange={(e) => setFormData({...formData, tadarus_ayat: e.target.value})}
-                          className="min-h-[44px] bg-white text-sm"
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.bersedekah}
+                          onChange={() => handleCheckboxChange('bersedekah')}
+                          className="sr-only peer"
                         />
-                      </div>
+                        <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className={`ml-3 text-xs font-bold w-12 ${formData.bersedekah ? 'text-emerald-700' : 'text-gray-400'}`}>
+                          {formData.bersedekah ? 'IYA' : 'TIDAK'}
+                        </span>
+                      </label>
                     </div>
                   </div>
 
+                  {/* Membantu Orang Tua */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Membantu Orang Tua</Label>
+                    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-50 p-2 rounded-lg">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">Membantu Orang Tua Hari Ini</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.membantu_orang_tua}
+                          onChange={() => handleCheckboxChange('membantu_orang_tua')}
+                          className="sr-only peer"
+                        />
+                        <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className={`ml-3 text-xs font-bold w-12 ${formData.membantu_orang_tua ? 'text-emerald-700' : 'text-gray-400'}`}>
+                          {formData.membantu_orang_tua ? 'IYA' : 'TIDAK'}
+                        </span>
+                      </label>
+                    </div>
+                    {formData.membantu_orang_tua && (
+                      <div className="mt-4 animate-in fade-in slide-in-from-top-2">
+                        <textarea
+                          rows={3}
+                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
+                          placeholder="Ceritakan bagaimana kamu membantu orang tua hari ini..."
+                          value={formData.deskripsi_membantu_orang_tua}
+                          onChange={(e) => setFormData({...formData, deskripsi_membantu_orang_tua: e.target.value})}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {formData.puasa !== 'SEDANG HAID' && (
+                    <>
+                  {/* Tadarus */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Tadarus Al-Quran</Label>
+                    <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-50 p-2 rounded-lg">
+                          <BookOpen className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700">Membaca Al-Quran</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.tadarus}
+                          onChange={() => handleCheckboxChange('tadarus')}
+                          className="sr-only peer"
+                        />
+                        <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <span className={`ml-3 text-xs font-bold w-12 ${formData.tadarus ? 'text-emerald-700' : 'text-gray-400'}`}>
+                          {formData.tadarus ? 'IYA' : 'TIDAK'}
+                        </span>
+                      </label>
+                    </div>
+
+                    {formData.tadarus && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50/50 p-5 rounded-xl border border-emerald-100 mt-4 animate-in fade-in slide-in-from-top-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="surah" className="text-sm font-semibold text-emerald-800">Nama Surah</Label>
+                          <Input
+                            id="surah"
+                            placeholder="Contoh: Al-Baqarah"
+                            value={formData.tadarus_surah}
+                            onChange={(e) => setFormData({...formData, tadarus_surah: e.target.value})}
+                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="ayat" className="text-sm font-semibold text-emerald-800">Ayat</Label>
+                          <Input
+                            id="ayat"
+                            placeholder="Contoh: 1-10"
+                            value={formData.tadarus_ayat}
+                            onChange={(e) => setFormData({...formData, tadarus_ayat: e.target.value})}
+                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                    </>
+                  )}
+
                   {/* Kebaikan */}
-                  <div className="space-y-3">
-                    <Label htmlFor="kebaikan" className="text-base font-semibold">Kebaikan Hari Ini</Label>
+                  <div className="space-y-4">
+                    <Label htmlFor="kebaikan" className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Kebaikan Hari Ini (Opsional)</Label>
                     <textarea
                       id="kebaikan"
                       rows={4}
-                      className="flex w-full rounded-md border border-input bg-background px-3 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                      className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
                       placeholder="Ceritakan kebaikan yang kamu lakukan hari ini..."
                       value={formData.kebaikan}
                       onChange={(e) => setFormData({...formData, kebaikan: e.target.value})}
                     />
                   </div>
 
-                  <Button type="submit" className="w-full text-lg min-h-[56px] mt-8" disabled={loading}>
-                    {loading ? 'Menyimpan...' : 'Simpan Jurnal'}
+                  <Button type="submit" className="w-full text-lg font-bold min-h-[60px] mt-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 transition-all" disabled={loading}>
+                    {loading ? 'Memproses...' : 'Kirim Jurnal Sekarang'}
                   </Button>
                 </form>
               </CardContent>

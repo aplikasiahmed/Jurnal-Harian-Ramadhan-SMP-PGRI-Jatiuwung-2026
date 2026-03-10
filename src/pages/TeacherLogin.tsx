@@ -24,6 +24,11 @@ export default function TeacherLogin() {
         title: 'Semua Kolom Wajib di Isi',
         text: 'Silakan isi email dan password terlebih dahulu!',
         confirmButtonColor: '#047857',
+        width: '85%',
+        customClass: {
+          popup: 'rounded-2xl text-sm sm:text-base max-w-md',
+          title: 'text-lg sm:text-xl',
+        }
       });
       return;
     }
@@ -55,6 +60,11 @@ export default function TeacherLogin() {
         title: 'Login Gagal',
         text: 'Email atau password yang Anda masukkan salah!',
         confirmButtonColor: '#047857',
+        width: '85%',
+        customClass: {
+          popup: 'rounded-2xl text-sm sm:text-base max-w-md',
+          title: 'text-lg sm:text-xl',
+        }
       });
     } finally {
       setLoading(false);
@@ -90,10 +100,9 @@ export default function TeacherLogin() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="guru@smppgri.sch.id"
+                  placeholder="Masukkan Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                   className="min-h-[44px] text-sm"
                 />
               </div>
@@ -102,16 +111,16 @@ export default function TeacherLogin() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="************"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                   className="min-h-[44px] text-sm"
                 />
               </div>
               <Button type="submit" className="w-full min-h-[44px] text-sm mt-2" disabled={loading}>
                 {loading ? 'Masuk...' : 'Masuk'}
               </Button>
-              <p className="text-xs text-center text-gray-500 mt-4">
+              <p className="text-xs text-center text-gray-500 mt-2">
                 Hanya Guru yang dapat Masuk
               </p>
             </form>
