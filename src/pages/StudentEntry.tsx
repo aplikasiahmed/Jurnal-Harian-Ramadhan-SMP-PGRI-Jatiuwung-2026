@@ -62,10 +62,13 @@ export default function StudentEntry() {
         title: 'NIS Wajib Diisi!',
         text: 'Silakan masukkan NIS Anda terlebih dahulu.',
         confirmButtonColor: '#047857',
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -96,11 +99,14 @@ export default function StudentEntry() {
               title: 'Sudah Mengisi Jurnal!',
               text: 'Anda sudah mengisi jurnal Ramadhan untuk hari ini. Jurnal hanya dapat diisi 1x sehari.',
               confirmButtonColor: '#047857',
-              width: 'auto',
+              
               customClass: {
-                popup: 'rounded-2xl text-sm max-w-[400px]',
-                title: 'text-lg font-bold text-emerald-900',
-              }
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
             });
             return;
           }
@@ -114,11 +120,14 @@ export default function StudentEntry() {
             cancelButtonText: 'Cancel',
             confirmButtonColor: '#047857',
             cancelButtonColor: '#d33',
-            width: 'auto',
+            
             customClass: {
-              popup: 'rounded-2xl text-sm max-w-[400px]',
-              title: 'text-lg font-bold text-emerald-900',
-            }
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
           });
 
           if (confirmResult.isConfirmed) {
@@ -134,6 +143,10 @@ export default function StudentEntry() {
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
+              customClass: {
+                popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
+                title: 'text-sm sm:text-base'
+              }
             });
           }
         } else {
@@ -146,11 +159,11 @@ export default function StudentEntry() {
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-            width: 'auto',
+            
             customClass: {
-              popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-              title: 'text-base sm:text-lg',
-            }
+          popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
+          title: 'text-sm sm:text-base'
+        }
           });
         }
       } else {
@@ -163,11 +176,14 @@ export default function StudentEntry() {
           cancelButtonText: 'Cancel',
           confirmButtonColor: '#047857',
           cancelButtonColor: '#d33',
-          width: 'auto',
+          
           customClass: {
-            popup: 'rounded-2xl text-sm max-w-[400px]',
-            title: 'text-lg font-bold text-emerald-900',
-          }
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
         });
 
         if (confirmResult.isConfirmed) {
@@ -188,10 +204,10 @@ export default function StudentEntry() {
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
+          title: 'text-sm sm:text-base'
         }
       });
     } finally {
@@ -209,10 +225,13 @@ export default function StudentEntry() {
         title: 'Tanggal Wajib Diisi!',
         text: 'Silakan isi tanggal jurnal terlebih dahulu.',
         confirmButtonColor: '#047857',
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -224,10 +243,13 @@ export default function StudentEntry() {
         title: 'Alasan Puasa Wajib Diisi!',
         text: 'Silakan isi alasan mengapa Anda tidak berpuasa.',
         confirmButtonColor: '#047857',
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -241,44 +263,91 @@ export default function StudentEntry() {
           title: 'Shalat Wajib Harus Penuh!',
           text: 'Karena Anda berpuasa penuh, maka kelima Shalat Wajib harus dilaksanakan.',
           confirmButtonColor: '#047857',
-          width: 'auto',
+          
           customClass: {
-            popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-            title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
+        });
+        return;
+      }
+    }
+
+    const gdriveRegex = /^(https?:\/\/)?(drive|docs)\.google\.com\/.+/;
+
+    if (formData.puasa !== 'SEDANG HAID' && formData.shalat_tarawih) {
+      if (!formData.bukti_tarawih.trim()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Bukti Tarawih Wajib Diisi!',
+          text: 'Silakan masukkan link Google Drive bukti foto Shalat Tarawih.',
+          confirmButtonColor: '#047857',
+          customClass: {
+            popup: 'swal2-mobile-optimized',
+            title: 'swal2-title-optimized',
+            htmlContainer: 'swal2-content-optimized',
+            confirmButton: 'swal2-confirm-optimized',
+            cancelButton: 'swal2-cancel-optimized'
+          }
+        });
+        return;
+      }
+      
+      if (!gdriveRegex.test(formData.bukti_tarawih.trim())) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Link Tidak Valid!',
+          text: 'Format link Bukti Tarawih harus berupa link Google Drive yang valid.',
+          confirmButtonColor: '#047857',
+          customClass: {
+            popup: 'swal2-mobile-optimized',
+            title: 'swal2-title-optimized',
+            htmlContainer: 'swal2-content-optimized',
+            confirmButton: 'swal2-confirm-optimized',
+            cancelButton: 'swal2-cancel-optimized'
           }
         });
         return;
       }
     }
 
-    if (formData.puasa !== 'SEDANG HAID' && formData.shalat_tarawih && !formData.bukti_tarawih.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Bukti Tarawih Wajib Diisi!',
-        text: 'Silakan masukkan link Google Drive bukti foto Shalat Tarawih.',
-        confirmButtonColor: '#047857',
-        width: 'auto',
-        customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
-        }
-      });
-      return;
-    }
+    if (formData.puasa !== 'SEDANG HAID' && formData.tadarus) {
+      if (!formData.tadarus_surah.trim() || !formData.tadarus_ayat.trim() || !formData.bukti_tadarus.trim()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Tadarrus Al-Quran & Bukti Wajib Diisi!',
+          text: 'Silakan isi nama Surah, Ayat yang dibaca, dan link Google Drive bukti foto.',
+          confirmButtonColor: '#047857',
+          customClass: {
+            popup: 'swal2-mobile-optimized',
+            title: 'swal2-title-optimized',
+            htmlContainer: 'swal2-content-optimized',
+            confirmButton: 'swal2-confirm-optimized',
+            cancelButton: 'swal2-cancel-optimized'
+          }
+        });
+        return;
+      }
 
-    if (formData.puasa !== 'SEDANG HAID' && formData.tadarus && (!formData.tadarus_surah.trim() || !formData.tadarus_ayat.trim() || !formData.bukti_tadarus.trim())) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Tadarrus Al-Quran & Bukti Wajib Diisi!',
-        text: 'Silakan isi nama Surah, Ayat yang dibaca, dan link Google Drive bukti foto.',
-        confirmButtonColor: '#047857',
-        width: 'auto',
-        customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
-        }
-      });
-      return;
+      if (!gdriveRegex.test(formData.bukti_tadarus.trim())) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Link Tidak Valid!',
+          text: 'Format link Bukti Tadarrus harus berupa link Google Drive yang valid.',
+          confirmButtonColor: '#047857',
+          customClass: {
+            popup: 'swal2-mobile-optimized',
+            title: 'swal2-title-optimized',
+            htmlContainer: 'swal2-content-optimized',
+            confirmButton: 'swal2-confirm-optimized',
+            cancelButton: 'swal2-cancel-optimized'
+          }
+        });
+        return;
+      }
     }
 
     if (!formData.membantu_orang_tua) {
@@ -287,10 +356,13 @@ export default function StudentEntry() {
         title: 'Wajib Membantu Orang Tua!',
         text: 'Membantu orang tua adalah kewajiban. Silakan pilih IYA dan sebutkan apa yang Anda lakukan.',
         confirmButtonColor: '#047857',
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -302,10 +374,13 @@ export default function StudentEntry() {
         title: 'Deskripsi Wajib Diisi!',
         text: 'Silakan isi deskripsi kegiatan membantu orang tua yang Anda lakukan hari ini.',
         confirmButtonColor: '#047857',
-        width: 'auto',
+        
         customClass: {
-          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-          title: 'text-base sm:text-lg',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -327,11 +402,14 @@ export default function StudentEntry() {
       cancelButtonText: 'Batal',
       confirmButtonColor: '#047857',
       cancelButtonColor: '#d33',
-      width: 'auto',
+      
       customClass: {
-        popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-        title: 'text-base sm:text-lg',
-      }
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
     });
 
     if (!confirmResult.isConfirmed) {
@@ -356,11 +434,14 @@ export default function StudentEntry() {
             title: 'Sudah Mengisi!',
             text: `Anda sudah mengisi Jurnal Harian Ramadhan pada tanggal ${formatDate(formData.tanggal)}. Hanya diperbolehkan mengisi 1x dalam sehari.`,
             confirmButtonColor: '#047857',
-            width: 'auto',
+            
             customClass: {
-              popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
-              title: 'text-base sm:text-lg',
-            }
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
+        }
           });
           setLoading(false);
           return;
@@ -524,6 +605,17 @@ export default function StudentEntry() {
               </a>{' '}
               Pak Ahmed Jika tidak mengetahui nomor NIS Siswa
             </p>
+            <div className="mt-6 p-4 bg-emerald-50/80 rounded-xl border border-emerald-100 text-center shadow-sm">
+              <p className="text-[10px] sm:text-xs font-bold text-emerald-700/80 uppercase tracking-wider">
+                "Rasulallah SAW Bersabda"
+              </p>
+              <p className="text-xs sm:text-sm italic text-emerald-800 mb-1 leading-relaxed">
+                "Hendaklah kalian senantiasa berlaku jujur, karena sesungguhnya kejujuran akan mengantarkan pada kebaikan dan sesungguhnya kebaikan akan mengantarkan pada surga."
+              </p>
+              <p className="text-[10px] sm:text-xs font-bold text-emerald-700/80 uppercase tracking-wider">
+                (HR. Bukhari dan Muslim)
+              </p>
+            </div>
             </div>
           ) : (
             <Card className="border-emerald-100 shadow-xl shadow-emerald-900/5 rounded-2xl overflow-hidden">
@@ -579,7 +671,7 @@ export default function StudentEntry() {
                       <div className="mt-4 animate-in fade-in slide-in-from-top-2">
                         <textarea
                           rows={3}
-                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
+                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
                           placeholder="Tuliskan alasan mengapa tidak berpuasa..."
                           value={formData.alasan_puasa}
                           onChange={(e) => setFormData({...formData, alasan_puasa: e.target.value})}
@@ -679,7 +771,7 @@ export default function StudentEntry() {
                       placeholder="Ketik sholat sunnah di sini..."
                       value={formData.shalat_sunnah}
                       onChange={(e) => setFormData({...formData, shalat_sunnah: e.target.value})}
-                      className="min-h-[48px] text-base rounded-lg border-gray-200 focus-visible:ring-emerald-500"
+                      className="min-h-[48px] text-sm rounded-lg border-gray-200 focus-visible:ring-emerald-500"
                     />
                   </div>
                     </>
@@ -736,8 +828,8 @@ export default function StudentEntry() {
                     {formData.membantu_orang_tua && (
                       <div className="mt-4 animate-in fade-in slide-in-from-top-2">
                         <textarea
-                          rows={3}
-                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
+                          rows={6}
+                          className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
                           placeholder="Ceritakan bagaimana kamu membantu orang tua hari ini..."
                           value={formData.deskripsi_membantu_orang_tua}
                           onChange={(e) => setFormData({...formData, deskripsi_membantu_orang_tua: e.target.value})}
@@ -781,7 +873,7 @@ export default function StudentEntry() {
                             placeholder="Contoh: Al-Baqarah"
                             value={formData.tadarus_surah}
                             onChange={(e) => setFormData({...formData, tadarus_surah: e.target.value})}
-                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                            className="min-h-[48px] bg-white text-sm border-emerald-200 focus-visible:ring-emerald-500"
                           />
                         </div>
                         <div className="space-y-2">
@@ -791,18 +883,18 @@ export default function StudentEntry() {
                             placeholder="Contoh: 1-10"
                             value={formData.tadarus_ayat}
                             onChange={(e) => setFormData({...formData, tadarus_ayat: e.target.value})}
-                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                            className="min-h-[48px] bg-white text-sm border-emerald-200 focus-visible:ring-emerald-500"
                           />
                         </div>
                         <div className="space-y-1 sm:col-span-2">
                           <Label htmlFor="bukti_tadarus" className="text-sm font-semibold text-emerald-800">Link Google Drive Bukti Tadarus <span className="text-red-500">*</span></Label>
-                          <p className="text-xs text-emerald-700/80 mb-3">Mohon upload foto bukti tadarus ke Google Drive dan paste linknya di sini. foto asli kalian saat mengaji bukan foto orang lain. foto wajib terlihat wajah.</p>
+                          <p className="text-xs text-emerald-700/80 mb-3">Mohon upload foto bukti tadarus ke Google Drive dan paste linknya di sini. foto asli saat mengaji bukan foto orang lain. foto wajib terlihat wajah.</p>
                           <Input
                             id="bukti_tadarus"
                             placeholder="https://drive.google.com/..."
                             value={formData.bukti_tadarus}
                             onChange={(e) => setFormData({...formData, bukti_tadarus: e.target.value})}
-                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                            className="min-h-[48px] bg-white text-sm border-emerald-200 focus-visible:ring-emerald-500"
                           />
                           <a 
                             href="#" 
@@ -824,8 +916,8 @@ export default function StudentEntry() {
                     <Label htmlFor="kebaikan" className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Kebaikan Hari Ini (Opsional)</Label>
                     <textarea
                       id="kebaikan"
-                      rows={4}
-                      className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
+                      rows={6}
+                      className="flex w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm ring-offset-background placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent transition-all"
                       placeholder="Ceritakan kebaikan yang kamu lakukan hari ini..."
                       value={formData.kebaikan}
                       onChange={(e) => setFormData({...formData, kebaikan: e.target.value})}

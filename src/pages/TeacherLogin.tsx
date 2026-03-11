@@ -24,10 +24,13 @@ export default function TeacherLogin() {
         title: 'Semua Kolom Wajib di Isi',
         text: 'Silakan isi email dan password terlebih dahulu!',
         confirmButtonColor: '#047857',
-        width: '85%',
+        
         customClass: {
-          popup: 'rounded-2xl text-sm sm:text-base max-w-md',
-          title: 'text-lg sm:text-xl',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
       return;
@@ -60,10 +63,13 @@ export default function TeacherLogin() {
         title: 'Login Gagal',
         text: 'Email atau password yang Anda masukkan salah!',
         confirmButtonColor: '#047857',
-        width: '85%',
+        
         customClass: {
-          popup: 'rounded-2xl text-sm sm:text-base max-w-md',
-          title: 'text-lg sm:text-xl',
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized',
+          confirmButton: 'swal2-confirm-optimized',
+          cancelButton: 'swal2-cancel-optimized'
         }
       });
     } finally {
