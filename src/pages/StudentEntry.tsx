@@ -5,8 +5,10 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { BookOpen, CheckCircle2, Moon, Sun, Lock } from 'lucide-react';
+import { BookOpen, CheckCircle2, Moon, Sun, Lock, ArrowLeft } from 'lucide-react';
 import Swal from 'sweetalert2';
+import TeacherLoginModal from '@/src/components/TeacherLoginModal';
+import VideoModal from '@/src/components/VideoModal';
 
 const getLocalDate = () => {
   const now = new Date();
@@ -25,6 +27,9 @@ export default function StudentEntry() {
   const [studentClass, setStudentClass] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const videoTutorialUrl = "https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/Video/video%20tutorial.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJWaWRlby92aWRlbyB0dXRvcmlhbC5tcDQiLCJpYXQiOjE3NzMyMzU3MDQsImV4cCI6MTgwNDc3MTcwNH0.NiBqmCRzT477q_l3J48kYILqVAs8SZ4DqEEiXFdoTjQ";
 
   // Form State
   const [formData, setFormData] = useState({
@@ -41,6 +46,8 @@ export default function StudentEntry() {
     tadarus: false,
     tadarus_surah: '',
     tadarus_ayat: '',
+    bukti_tarawih: '',
+    bukti_tadarus: '',
     bersedekah: false,
     membantu_orang_tua: false,
     deskripsi_membantu_orang_tua: '',
@@ -244,11 +251,26 @@ export default function StudentEntry() {
       }
     }
 
-    if (formData.puasa !== 'SEDANG HAID' && formData.tadarus && (!formData.tadarus_surah.trim() || !formData.tadarus_ayat.trim())) {
+    if (formData.puasa !== 'SEDANG HAID' && formData.shalat_tarawih && !formData.bukti_tarawih.trim()) {
       Swal.fire({
         icon: 'warning',
-        title: 'Tadarrus Al-Quran Wajib Diisi!',
-        text: 'Silakan isi nama Surah dan Ayat yang dibaca.',
+        title: 'Bukti Tarawih Wajib Diisi!',
+        text: 'Silakan masukkan link Google Drive bukti foto Shalat Tarawih.',
+        confirmButtonColor: '#047857',
+        width: 'auto',
+        customClass: {
+          popup: 'rounded-2xl text-xs sm:text-sm max-w-[320px]',
+          title: 'text-base sm:text-lg',
+        }
+      });
+      return;
+    }
+
+    if (formData.puasa !== 'SEDANG HAID' && formData.tadarus && (!formData.tadarus_surah.trim() || !formData.tadarus_ayat.trim() || !formData.bukti_tadarus.trim())) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Tadarrus Al-Quran & Bukti Wajib Diisi!',
+        text: 'Silakan isi nama Surah, Ayat yang dibaca, dan link Google Drive bukti foto.',
         confirmButtonColor: '#047857',
         width: 'auto',
         customClass: {
@@ -361,10 +383,12 @@ export default function StudentEntry() {
           shalat_maghrib: isHaid ? null : formatToggle(formData.shalat_maghrib),
           shalat_isya: isHaid ? null : formatToggle(formData.shalat_isya),
           shalat_tarawih: isHaid ? null : formatToggle(formData.shalat_tarawih),
+          bukti_tarawih: (isHaid || !formData.shalat_tarawih) ? null : formData.bukti_tarawih,
           shalat_sunnah: isHaid ? null : formData.shalat_sunnah,
           tadarus: isHaid ? null : formatToggle(formData.tadarus),
           tadarus_surah: isHaid ? null : formData.tadarus_surah,
           tadarus_ayat: isHaid ? null : formData.tadarus_ayat,
+          bukti_tadarus: (isHaid || !formData.tadarus) ? null : formData.bukti_tadarus,
           bersedekah: formatToggle(formData.bersedekah),
           membantu_orang_tua: formatToggle(formData.membantu_orang_tua),
           deskripsi_membantu_orang_tua: formData.membantu_orang_tua ? formData.deskripsi_membantu_orang_tua : null,
@@ -436,7 +460,7 @@ export default function StudentEntry() {
             variant="outline" 
             size="sm" 
             className="bg-emerald-700/50 border-emerald-500/50 text-white hover:bg-emerald-600 hover:text-white min-h-[38px] text-xs sm:text-sm shadow-sm backdrop-blur-sm transition-all"
-            onClick={() => navigate('/login')}
+            onClick={() => setIsLoginModalOpen(true)}
           >
             <Lock className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Login Guru</span>
@@ -447,7 +471,16 @@ export default function StudentEntry() {
 
       <div className="flex-1 py-8 px-4 sm:px-6 lg:px-8 relative z-0">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8 sm:mb-10">
+          <div className="text-center mb-8 sm:mb-10 relative">
+            {isNisSubmitted && (
+              <button 
+                onClick={() => setIsNisSubmitted(false)} 
+                className="absolute left-0 top-0 p-2 text-emerald-700 hover:bg-emerald-100 rounded-full transition-colors"
+                title="Kembali"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            )}
             <div className="inline-block bg-white p-3 rounded-2xl shadow-sm mb-5 border border-emerald-100">
               <img src="https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/GAMBAR/Logo%20PGRI.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJHQU1CQVIvTG9nbyBQR1JJLnBuZyIsImlhdCI6MTc3MzE1NjUzNiwiZXhwIjoxODA0NjkyNTM2fQ.TthcwawgwLCFfoFGR08xAD_cYXtRmypgCoeosILn2G8" alt="Logo PGRI" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" referrerPolicy="no-referrer" />
             </div>
@@ -615,12 +648,32 @@ export default function StudentEntry() {
                         </span>
                       </label>
                     </div>
+                    {formData.shalat_tarawih && (
+                      <div className="mt-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100 animate-in fade-in slide-in-from-top-2">
+                        <Label htmlFor="bukti_tarawih" className="text-sm font-semibold text-emerald-900 mb-2 block">Link Google Drive Bukti Tarawih <span className="text-red-500">*</span></Label>
+                        <p className="text-xs text-emerald-700/80 mb-3">Mohon upload foto bukti tarawih ke Google Drive dan paste linknya di sini. foto harus berada di masjid atau mushollah ketika sebelum atau sesudah tarawih, foto wajib terlihat wajah</p>
+                        <Input
+                          id="bukti_tarawih"
+                          placeholder="https://drive.google.com/..."
+                          value={formData.bukti_tarawih}
+                          onChange={(e) => setFormData({...formData, bukti_tarawih: e.target.value})}
+                          className="min-h-[48px] text-sm rounded-lg border-emerald-200 focus-visible:ring-emerald-500 bg-white"
+                        />
+                        <a 
+                          href="#" 
+                          onClick={(e) => { e.preventDefault(); setIsVideoModalOpen(true); }}
+                          className="inline-block mt-2 text-xs font-medium text-red-600 hover:text-red-800 italic hover:underline"
+                        >
+                          Tutorial cara upload fotonya
+                        </a>
+                      </div>
+                    )}
                   </div>
 
                   {/* Shalat Sunnah */}
                   <div className="space-y-4">
                     <Label htmlFor="shalat_sunnah" className="text-base font-semibold text-emerald-900 border-b border-emerald-100 pb-2 block">Shalat Sunnah (Opsional)</Label>
-                    <p className="text-sm text-gray-500 -mt-2 mb-3">Sebutkan sholat sunnah yang dilakukan (contoh: Tahajjud, Dhuha, Rawatib)</p>
+                    <p className="text-sm text-gray-500 -mt-2 mb-3">Sebutkan sholat sunnah yang dilakukan (contoh: Tahajjud, Dhuha, Rawatib, dll)</p>
                     <Input
                       id="shalat_sunnah"
                       placeholder="Ketik sholat sunnah di sini..."
@@ -741,6 +794,24 @@ export default function StudentEntry() {
                             className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
                           />
                         </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label htmlFor="bukti_tadarus" className="text-sm font-semibold text-emerald-800">Link Google Drive Bukti Tadarus <span className="text-red-500">*</span></Label>
+                          <p className="text-xs text-emerald-700/80 mb-3">Mohon upload foto bukti tadarus ke Google Drive dan paste linknya di sini. foto asli kalian saat mengaji bukan foto orang lain. foto wajib terlihat wajah.</p>
+                          <Input
+                            id="bukti_tadarus"
+                            placeholder="https://drive.google.com/..."
+                            value={formData.bukti_tadarus}
+                            onChange={(e) => setFormData({...formData, bukti_tadarus: e.target.value})}
+                            className="min-h-[48px] bg-white text-base border-emerald-200 focus-visible:ring-emerald-500"
+                          />
+                          <a 
+                            href="#" 
+                            onClick={(e) => { e.preventDefault(); setIsVideoModalOpen(true); }}
+                            className="inline-block mt-2 text-xs font-medium text-red-600 hover:text-red-800 italic hover:underline"
+                          >
+                            Tutorial cara upload fotonya
+                          </a>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -770,6 +841,8 @@ export default function StudentEntry() {
           )}
         </div>
       </div>
+      <TeacherLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <VideoModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} videoUrl={videoTutorialUrl} />
     </div>
   );
 }
