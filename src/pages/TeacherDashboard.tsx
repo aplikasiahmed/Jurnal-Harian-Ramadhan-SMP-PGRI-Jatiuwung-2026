@@ -4,7 +4,8 @@ import { supabase } from '@/src/lib/supabase';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Card, CardContent } from '@/src/components/ui/card';
-import { Search, FileText, CheckCircle, XCircle, Download, FileSpreadsheet, Heart, BookOpen, HandHeart, Star } from 'lucide-react';
+import { Search, FileText, CheckCircle, XCircle, Download, FileSpreadsheet, Heart, BookOpen, HandHeart, Star, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -74,11 +75,96 @@ export default function TeacherDashboard() {
   };
 
   const handleLogout = async () => {
-    if (supabase) {
-      localStorage.removeItem('teacher_logged_in');
-      localStorage.removeItem('teacher_email');
+    const result = await Swal.fire({
+      title: 'Yakin ingin keluar?',
+      text: "Anda akan keluar dari Dashboard Guru.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#047857',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'KELUAR',
+      cancelButtonText: 'TIDAK',
+      customClass: {
+        popup: 'rounded-2xl',
+        title: 'text-lg sm:text-xl font-bold',
+        confirmButton: 'rounded-xl px-6',
+        cancelButton: 'rounded-xl px-6'
+      }
+    });
+
+    if (result.isConfirmed) {
+      if (supabase) {
+        localStorage.removeItem('teacher_logged_in');
+        localStorage.removeItem('teacher_email');
+      }
+      navigate('/');
     }
-    navigate('/');
+  };
+
+  const handleDeleteEntry = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Hapus Jurnal?',
+      text: `Apakah Anda yakin ingin menghapus jurnal milik ${name}? Tindakan ini tidak dapat dibatalkan.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Tidak',
+      customClass: {
+        popup: 'rounded-2xl',
+        title: 'text-lg sm:text-xl font-bold',
+        confirmButton: 'rounded-xl px-6',
+        cancelButton: 'rounded-xl px-6'
+      }
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Menghapus...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        customClass: {
+          popup: 'rounded-2xl'
+        }
+      });
+
+      try {
+        if (supabase) {
+          const { error } = await supabase
+            .from('jurnal_ramadhan')
+            .delete()
+            .eq('id', id);
+          
+          if (error) throw error;
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Dihapus',
+            text: `Jurnal milik ${name} telah dihapus dari database.`,
+            timer: 2000,
+            showConfirmButton: false,
+            customClass: {
+              popup: 'rounded-2xl'
+            }
+          });
+          
+          fetchEntries();
+        }
+      } catch (error) {
+        console.error('Error deleting entry:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Menghapus',
+          text: 'Terjadi kesalahan saat menghapus data.',
+          customClass: {
+            popup: 'rounded-2xl'
+          }
+        });
+      }
+    }
   };
 
   const filteredEntries = entries.filter(entry => {
@@ -484,13 +570,22 @@ export default function TeacherDashboard() {
                         </span>
                         {entry.kelas && (
                           <span className="text-[10px] sm:text-xs text-emerald-600 sm:ml-2 block sm:inline mt-1 sm:mt-0">
-                            Kelas: {entry.kelas} | NIS: {entry.nis}
+                            Kelas: {entry.kelas} | NIS: {entry.nis} | {new Date(entry.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] sm:text-xs text-emerald-700 font-semibold bg-emerald-100 px-2.5 py-1 rounded-full whitespace-nowrap ml-2">
-                        {entry.puasa}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleDeleteEntry(entry.id, entry.nama_siswa || entry.nis)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Hapus Jurnal"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <span className="text-[10px] sm:text-xs text-emerald-700 font-semibold bg-emerald-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                          {entry.puasa}
+                        </span>
+                      </div>
                     </div>
                     <CardContent className="p-4 space-y-4">
                       {/* Shalat Wajib */}

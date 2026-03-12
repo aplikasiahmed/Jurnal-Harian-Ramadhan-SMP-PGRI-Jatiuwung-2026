@@ -115,19 +115,17 @@ export default function StudentEntry() {
             icon: 'info',
             title: 'Wajib Dibaca',
             text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
-            showCancelButton: true,
+            showCloseButton: true,
             confirmButtonText: 'IYA',
-            cancelButtonText: 'Cancel',
             confirmButtonColor: '#047857',
-            cancelButtonColor: '#d33',
             
             customClass: {
-          popup: 'swal2-mobile-optimized',
-          title: 'swal2-title-optimized',
-          htmlContainer: 'swal2-content-optimized',
-          confirmButton: 'swal2-confirm-optimized',
-          cancelButton: 'swal2-cancel-optimized'
-        }
+              popup: 'swal2-mobile-optimized',
+              title: 'swal2-title-optimized',
+              htmlContainer: 'swal2-content-optimized',
+              confirmButton: 'swal2-confirm-optimized',
+              closeButton: 'swal2-close-red'
+            }
           });
 
           if (confirmResult.isConfirmed) {
@@ -135,19 +133,31 @@ export default function StudentEntry() {
             setRawStudentName(data.namalengkap);
             setStudentClass(data.Kelas);
             setIsNisSubmitted(true);
-            Swal.fire({
-              toast: true,
-              position: 'top-end',
+            
+            const loginResult = await Swal.fire({
               icon: 'success',
-              title: `Selamat datang, ${data.namalengkap}`,
-              showConfirmButton: false,
-              timer: 3000,
-              timerProgressBar: true,
+              title: 'Login Berhasil!',
+              showCloseButton: true,
+              html: `
+                <div class="text-center space-y-2">
+                  <p class="text-emerald-800 font-bold text-lg">${data.namalengkap}</p>
+                  <p class="text-gray-600">NIS: ${nis}</p>
+                  <p class="text-emerald-600 font-medium">Kelas: ${data.Kelas}</p>
+                </div>
+              `,
+              confirmButtonText: 'Mulai Isi Jurnal',
+              confirmButtonColor: '#047857',
               customClass: {
-                popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
-                title: 'text-sm sm:text-base'
+                popup: 'swal2-mobile-optimized rounded-2xl',
+                title: 'swal2-title-optimized',
+                confirmButton: 'swal2-confirm-optimized',
+                closeButton: 'swal2-close-red'
               }
             });
+
+            if (loginResult.dismiss === Swal.DismissReason.close) {
+              setIsNisSubmitted(false);
+            }
           }
         } else {
           Swal.fire({
@@ -171,19 +181,17 @@ export default function StudentEntry() {
           icon: 'info',
           title: 'Wajib Dibaca',
           text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
-          showCancelButton: true,
+          showCloseButton: true,
           confirmButtonText: 'IYA',
-          cancelButtonText: 'Cancel',
           confirmButtonColor: '#047857',
-          cancelButtonColor: '#d33',
           
           customClass: {
-          popup: 'swal2-mobile-optimized',
-          title: 'swal2-title-optimized',
-          htmlContainer: 'swal2-content-optimized',
-          confirmButton: 'swal2-confirm-optimized',
-          cancelButton: 'swal2-cancel-optimized'
-        }
+            popup: 'swal2-mobile-optimized',
+            title: 'swal2-title-optimized',
+            htmlContainer: 'swal2-content-optimized',
+            confirmButton: 'swal2-confirm-optimized',
+            closeButton: 'swal2-close-red'
+          }
         });
 
         if (confirmResult.isConfirmed) {
@@ -255,13 +263,15 @@ export default function StudentEntry() {
       return;
     }
 
-    if (formData.puasa === 'BERPUASA') {
+    if (formData.puasa === 'BERPUASA' || formData.puasa === 'TIDAK PUASA') {
       const allShalatWajib = formData.shalat_subuh && formData.shalat_dzuhur && formData.shalat_ashar && formData.shalat_maghrib && formData.shalat_isya;
       if (!allShalatWajib) {
         Swal.fire({
           icon: 'warning',
           title: 'Shalat Wajib Harus Penuh!',
-          text: 'Karena Anda berpuasa penuh, maka kelima Shalat Wajib harus dilaksanakan.',
+          text: formData.puasa === 'BERPUASA' 
+            ? 'Karena Anda berpuasa penuh, maka kelima Shalat Wajib harus dilaksanakan.'
+            : 'Meskipun tidak berpuasa, Anda tetap wajib melaksanakan Shalat Wajib 5 waktu.',
           confirmButtonColor: '#047857',
           
           customClass: {
@@ -496,6 +506,15 @@ export default function StudentEntry() {
     setFormData(prev => ({ ...prev, [field]: !prev[field as keyof typeof prev] }));
   };
 
+  const formatIndoDate = (dateStr: string) => {
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const [year, month, day] = dateStr.split('-');
+    return `${day}-${months[parseInt(month) - 1]}-${year}`;
+  };
+
   if (success) {
     return (
       <div className="min-h-screen bg-emerald-50 flex flex-col">
@@ -512,7 +531,10 @@ export default function StudentEntry() {
             <CardContent className="flex flex-col items-center space-y-4">
               <CheckCircle2 className="w-16 h-16 text-emerald-500" />
               <CardTitle className="text-xl text-emerald-800">Alhamdulillah!</CardTitle>
-              <p className="text-sm text-gray-600">Jurnal Ramadhan hari ini berhasil disimpan.</p>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">Jurnal Ramadhan hari ini berhasil disimpan.</p>
+                <p className="text-xs font-bold text-emerald-700">{formatIndoDate(formData.tanggal)}</p>
+              </div>
               <Button onClick={() => window.location.reload()} className="mt-4 min-h-[44px] w-full sm:w-auto text uppercase text-sm">
                 Tutup
               </Button>
