@@ -133,12 +133,18 @@ export default function TeacherDashboard() {
 
       try {
         if (supabase) {
-          const { error } = await supabase
+          // Menggunakan count: 'exact' untuk mengetahui apakah ada baris yang benar-benar terhapus
+          const { error, count } = await supabase
             .from('jurnal_ramadhan')
-            .delete()
+            .delete({ count: 'exact' })
             .eq('id', id);
           
           if (error) throw error;
+
+          // Jika count adalah 0, berarti tidak ada baris yang dihapus (mungkin karena RLS)
+          if (count === 0) {
+            throw new Error('Data tidak ditemukan atau Anda tidak memiliki izin untuk menghapus. Pastikan RLS Policy di Supabase sudah diatur.');
+          }
           
           Swal.fire({
             icon: 'success',
@@ -153,12 +159,12 @@ export default function TeacherDashboard() {
           
           fetchEntries();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting entry:', error);
         Swal.fire({
           icon: 'error',
           title: 'Gagal Menghapus',
-          text: 'Terjadi kesalahan saat menghapus data.',
+          text: error.message || 'Terjadi kesalahan saat menghapus data. Periksa koneksi atau izin database.',
           customClass: {
             popup: 'rounded-2xl'
           }
