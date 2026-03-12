@@ -79,6 +79,7 @@ export default function TeacherDashboard() {
       title: 'Yakin ingin keluar?',
       text: "Anda akan keluar dari Dashboard Guru.",
       icon: 'question',
+      showCloseButton: true,
       showCancelButton: true,
       confirmButtonColor: '#047857',
       cancelButtonColor: '#d33',
@@ -88,7 +89,8 @@ export default function TeacherDashboard() {
         popup: 'rounded-2xl',
         title: 'text-lg sm:text-xl font-bold',
         confirmButton: 'rounded-xl px-6',
-        cancelButton: 'rounded-xl px-6'
+        cancelButton: 'rounded-xl px-6',
+        closeButton: 'swal2-close-red'
       }
     });
 
@@ -106,6 +108,7 @@ export default function TeacherDashboard() {
       title: 'Hapus Jurnal?',
       text: `Apakah Anda yakin ingin menghapus jurnal milik ${name}? Tindakan ini tidak dapat dibatalkan.`,
       icon: 'warning',
+      showCloseButton: true,
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#6b7280',
@@ -115,7 +118,8 @@ export default function TeacherDashboard() {
         popup: 'rounded-2xl',
         title: 'text-lg sm:text-xl font-bold',
         confirmButton: 'rounded-xl px-6',
-        cancelButton: 'rounded-xl px-6'
+        cancelButton: 'rounded-xl px-6',
+        closeButton: 'swal2-close-red'
       }
     });
 

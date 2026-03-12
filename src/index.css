@@ -111,15 +111,17 @@
 .swal2-close-red {
   background-color: #ef4444 !important;
   color: white !important;
-  border-radius: 8px !important;
-  width: 32px !important;
-  height: 32px !important;
+  border-radius: 50% !important;
+  width: 30px !important;
+  height: 30px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
   transition: all 0.2s !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+  margin-top: 5px !important;
+  margin-right: 5px !important;
 }
 
 .swal2-close-red:hover {
