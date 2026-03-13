@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/src/lib/supabase';
 import { Button } from '@/src/components/ui/button';
@@ -30,6 +30,29 @@ export default function StudentEntry() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const videoTutorialUrl = "https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/Video/video%20tutorial.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJWaWRlby92aWRlbyB0dXRvcmlhbC5tcDQiLCJpYXQiOjE3NzMyMzU3MDQsImV4cCI6MTgwNDc3MTcwNH0.NiBqmCRzT477q_l3J48kYILqVAs8SZ4DqEEiXFdoTjQ";
+
+  useEffect(() => {
+    Swal.fire({
+      title: 'Wajib Dibaca',
+      icon: 'info',
+      html: `
+        <div class="text-center px-1">
+          <p class="text-gray-700 leading-relaxed font-medium text-sm sm:text-base">
+            isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. 
+            Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong
+          </p>
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
+      customClass: {
+        popup: 'rounded-[32px] border-0 shadow-2xl p-4 sm:p-6',
+        title: 'text-emerald-800 font-bold text-xl sm:text-2xl mt-2',
+        htmlContainer: 'mt-3 sm:mt-4',
+        closeButton: 'swal2-close-red'
+      }
+    });
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -111,121 +134,81 @@ export default function StudentEntry() {
             return;
           }
 
-          const confirmResult = await Swal.fire({
-            icon: 'info',
-            title: 'Wajib Dibaca',
-            text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
+          setStudentName(data.namalengkap);
+          setRawStudentName(data.namalengkap);
+          setStudentClass(data.Kelas);
+          setIsNisSubmitted(true);
+          
+          const loginResult = await Swal.fire({
+            title: 'Login Berhasil!',
             showCloseButton: true,
-            confirmButtonText: 'IYA',
+            html: `
+              <div class="flex flex-col items-center">
+                <div class="mb-4 relative">
+                  <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border-4 border-emerald-100 animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-sm">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                </div>
+                <div class="text-center space-y-0">
+                  <p class="text-emerald-800 font-bold text-lg tracking-tight uppercase leading-tight mb-1">${data.namalengkap}</p>
+                  <div class="inline-block px-3 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[14px] font-bold leading-none">
+                    Kelas: ${data.Kelas}
+                  </div>
+                  <p class="text-gray-500 font-medium text-xs mt-0.5">NIS: ${nis}</p>
+                </div>
+              </div>
+            `,
+            confirmButtonText: 'Mulai Isi Jurnal',
             confirmButtonColor: '#047857',
-            
             customClass: {
-              popup: 'swal2-mobile-optimized',
-              title: 'swal2-title-optimized',
-              htmlContainer: 'swal2-content-optimized',
-              confirmButton: 'swal2-confirm-optimized',
+              popup: 'swal2-mobile-optimized rounded-3xl shadow-2xl',
+              title: 'swal2-title-optimized text-2xl mb-2',
+              confirmButton: 'swal2-confirm-optimized w-full sm:w-auto py-3 px-8 text-lg',
               closeButton: 'swal2-close-red'
             }
           });
 
-          if (confirmResult.isConfirmed) {
-            setStudentName(data.namalengkap);
-            setRawStudentName(data.namalengkap);
-            setStudentClass(data.Kelas);
-            setIsNisSubmitted(true);
-            
-            const loginResult = await Swal.fire({
-              title: 'Login Berhasil!',
-              showCloseButton: true,
-              html: `
-                <div class="flex flex-col items-center">
-                  <div class="mb-4 relative">
-                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border-4 border-emerald-100 animate-pulse">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-sm">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="text-center space-y-0">
-                    <p class="text-emerald-800 font-bold text-lg tracking-tight uppercase leading-tight mb-1">${data.namalengkap}</p>
-                    <div class="inline-block px-3 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[14px] font-bold leading-none">
-                      Kelas: ${data.Kelas}
-                    </div>
-                    <p class="text-gray-500 font-medium text-xs mt-0.5">NIS: ${nis}</p>
-                  </div>
-                </div>
-              `,
-              confirmButtonText: 'Mulai Isi Jurnal',
-              confirmButtonColor: '#047857',
-              customClass: {
-                popup: 'swal2-mobile-optimized rounded-3xl shadow-2xl',
-                title: 'swal2-title-optimized text-2xl mb-2',
-                confirmButton: 'swal2-confirm-optimized w-full sm:w-auto py-3 px-8 text-lg',
-                closeButton: 'swal2-close-red'
-              }
-            });
-
-            if (loginResult.dismiss === Swal.DismissReason.close) {
-              setIsNisSubmitted(false);
-            }
+          if (loginResult.dismiss === Swal.DismissReason.close) {
+            setIsNisSubmitted(false);
           }
         } else {
           Swal.fire({
-            toast: true,
-            position: 'top-end',
             icon: 'error',
             title: 'NIS tidak ditemukan!',
             text: 'Silakan periksa kembali NIS Anda.',
             showConfirmButton: false,
-            timer: 3000,
+            timer: 2000,
             timerProgressBar: true,
             
             customClass: {
-          popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
-          title: 'text-sm sm:text-base'
-        }
+              popup: 'swal2-mobile-optimized',
+              title: 'swal2-title-optimized',
+              htmlContainer: 'swal2-content-optimized'
+            }
           });
         }
       } else {
-        const confirmResult = await Swal.fire({
-          icon: 'info',
-          title: 'Wajib Dibaca',
-          text: 'isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong',
-          showCloseButton: true,
-          confirmButtonText: 'IYA',
-          confirmButtonColor: '#047857',
-          
-          customClass: {
-            popup: 'swal2-mobile-optimized',
-            title: 'swal2-title-optimized',
-            htmlContainer: 'swal2-content-optimized',
-            confirmButton: 'swal2-confirm-optimized',
-            closeButton: 'swal2-close-red'
-          }
-        });
-
-        if (confirmResult.isConfirmed) {
-          setStudentName('Siswa (Mode Demo)');
-          setRawStudentName('Siswa Demo');
-          setStudentClass('Demo');
-          setIsNisSubmitted(true);
-        }
+        setStudentName('Siswa (Mode Demo)');
+        setRawStudentName('Siswa Demo');
+        setStudentClass('Demo');
+        setIsNisSubmitted(true);
       }
     } catch (error) {
       console.error(error);
       Swal.fire({
-        toast: true,
-        position: 'top-end',
         icon: 'error',
         title: 'NIS tidak ditemukan!',
         text: 'Silakan periksa kembali NIS Anda.',
         showConfirmButton: false,
-        timer: 3000,
+        timer: 2000,
         timerProgressBar: true,
         
         customClass: {
-          popup: 'rounded-xl text-xs sm:text-sm max-w-[280px] sm:max-w-[320px]',
-          title: 'text-sm sm:text-base'
+          popup: 'swal2-mobile-optimized',
+          title: 'swal2-title-optimized',
+          htmlContainer: 'swal2-content-optimized'
         }
       });
     } finally {
@@ -614,9 +597,12 @@ export default function StudentEntry() {
                   <div className="space-y-2">
                     <Input
                       id="nis"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       placeholder="Nomor Induk Siswa (NIS)"
                       value={nis}
-                      onChange={(e) => setNis(e.target.value)}
+                      onChange={(e) => setNis(e.target.value.replace(/[^0-9]/g, ''))}
                       className="min-h-[42px] text-base text-center text-bold rounded-xl border-emerald-200 focus-visible:ring-emerald-500 bg-emerald-50/50"
                     />
                   </div>
@@ -792,7 +778,7 @@ export default function StudentEntry() {
                           className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-blue-600 hover:text-blue-800 italic hover:underline"
                         >
                           <Video className="w-3 h-3" />
-                          Klik Tutorial cara upload fotonya
+                          Klik tutorial cara upload fotonya
                         </a>
                       </div>
                     )}
@@ -938,7 +924,7 @@ export default function StudentEntry() {
                             className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-blue-600 hover:text-blue-800 italic hover:underline"
                           >
                             <Video className="w-3 h-3" />
-                            Klik Tutorial cara upload fotonya
+                            Klik tutorial cara upload fotonya
                           </a>
                         </div>
                       </div>
