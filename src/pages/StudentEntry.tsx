@@ -5,7 +5,7 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { BookOpen, CheckCircle2, Moon, Sun, Lock, ArrowLeft } from 'lucide-react';
+import { BookOpen, CheckCircle2, Moon, Sun, Lock, ArrowLeft, Video } from 'lucide-react';
 import Swal from 'sweetalert2';
 import TeacherLoginModal from '@/src/components/TeacherLoginModal';
 import VideoModal from '@/src/components/VideoModal';
@@ -129,28 +129,38 @@ export default function StudentEntry() {
           });
 
           if (confirmResult.isConfirmed) {
-            setStudentName(`${data.namalengkap} (Kelas ${data.Kelas})`);
+            setStudentName(data.namalengkap);
             setRawStudentName(data.namalengkap);
             setStudentClass(data.Kelas);
             setIsNisSubmitted(true);
             
             const loginResult = await Swal.fire({
-              icon: 'success',
               title: 'Login Berhasil!',
               showCloseButton: true,
               html: `
-                <div class="text-center space-y-2">
-                  <p class="text-emerald-800 font-bold text-lg">${data.namalengkap}</p>
-                  <p class="text-gray-600">NIS: ${nis}</p>
-                  <p class="text-emerald-600 font-medium">Kelas: ${data.Kelas}</p>
+                <div class="flex flex-col items-center">
+                  <div class="mb-4 relative">
+                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border-4 border-emerald-100 animate-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-sm">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="text-center space-y-0">
+                    <p class="text-emerald-800 font-bold text-lg tracking-tight uppercase leading-tight mb-1">${data.namalengkap}</p>
+                    <div class="inline-block px-3 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[14px] font-bold leading-none">
+                      Kelas: ${data.Kelas}
+                    </div>
+                    <p class="text-gray-500 font-medium text-xs mt-0.5">NIS: ${nis}</p>
+                  </div>
                 </div>
               `,
               confirmButtonText: 'Mulai Isi Jurnal',
               confirmButtonColor: '#047857',
               customClass: {
-                popup: 'swal2-mobile-optimized rounded-2xl',
-                title: 'swal2-title-optimized',
-                confirmButton: 'swal2-confirm-optimized',
+                popup: 'swal2-mobile-optimized rounded-3xl shadow-2xl',
+                title: 'swal2-title-optimized text-2xl mb-2',
+                confirmButton: 'swal2-confirm-optimized w-full sm:w-auto py-3 px-8 text-lg',
                 closeButton: 'swal2-close-red'
               }
             });
@@ -399,14 +409,14 @@ export default function StudentEntry() {
     // Helper to format date to DD-MM-YYYY
     const formatDate = (dateString: string) => {
       const [year, month, day] = dateString.split('-');
-      return `${day}-${month}-${year}`;
+      return `${day} ${month} ${year}`;
     };
 
     // Konfirmasi sebelum kirim
     const confirmResult = await Swal.fire({
       icon: 'question',
       title: 'Yakin ingin Kirim ?',
-      text: `Saya mengirim jurnal harian atas nama ${rawStudentName}, Kelas ${studentClass}, pada tanggal ${formatDate(formData.tanggal)}.`,
+      html: `Saya mengirim jurnal harian atas nama <b class="text-emerald-900">${rawStudentName}</b>, Kelas <b class="text-emerald-900">${studentClass}</b>, pada tanggal <b class="text-emerald-900">${formatDate(formData.tanggal)}</b>.`,
       showCancelButton: true,
       confirmButtonText: 'Ya, Kirim',
       cancelButtonText: 'Batal',
@@ -532,7 +542,7 @@ export default function StudentEntry() {
               <CheckCircle2 className="w-16 h-16 text-emerald-500" />
               <CardTitle className="text-xl text-emerald-800">Alhamdulillah!</CardTitle>
               <div className="space-y-1">
-                <p className="text-sm text-gray-600">Jurnal Ramadhan hari ini berhasil disimpan.</p>
+                <p className="text-sm text-gray-600">Jurnal Ramadhan hari ini berhasil dikirim.</p>
                 <p className="text-xs font-bold text-emerald-700">{formatIndoDate(formData.tanggal)}</p>
               </div>
               <Button onClick={() => window.location.reload()} className="mt-4 min-h-[44px] w-full sm:w-auto text uppercase text-sm">
@@ -645,8 +655,11 @@ export default function StudentEntry() {
                 <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                   <Moon className="w-32 h-32" />
                 </div>
-                <CardTitle className="text-xl sm:text-2xl font-bold relative z-10">{studentName}</CardTitle>
-                <CardDescription className="text-emerald-50 text-sm sm:text-base mt-2 relative z-10 font-medium opacity-90">
+                <CardTitle className="text-xl sm:text-2xl font-bold relative z-10 uppercase leading-tight">{studentName}</CardTitle>
+                <div className="text-emerald-50 text-sm sm:text-base mt-0 relative z-10 font-bold opacity-95 leading-tight">
+                  (Kelas {studentClass})
+                </div>
+                <CardDescription className="text-emerald-50 text-xs sm:text-sm mt-0.5 relative z-10 font-medium opacity-80 leading-tight">
                   NIS: {nis}
                 </CardDescription>
               </CardHeader>
@@ -660,7 +673,7 @@ export default function StudentEntry() {
                       type="date"
                       value={formData.tanggal}
                       readOnly
-                      className="min-h-[48px] text-base rounded-lg border-emerald-200 bg-gray-100 text-gray-500 cursor-not-allowed"
+                      className="min-h-[48px] text-base rounded-lg border-emerald-200 bg-gray-100/50 text-gray-500 cursor-default focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-emerald-200 hover:border-emerald-200 select-none pointer-events-none"
                     />
                   </div>
 
@@ -776,9 +789,10 @@ export default function StudentEntry() {
                         <a 
                           href="#" 
                           onClick={(e) => { e.preventDefault(); setIsVideoModalOpen(true); }}
-                          className="inline-block mt-2 text-xs font-medium text-red-600 hover:text-red-800 italic hover:underline"
+                          className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-blue-600 hover:text-blue-800 italic hover:underline"
                         >
-                          Tutorial cara upload fotonya
+                          <Video className="w-3 h-3" />
+                          Klik Tutorial cara upload fotonya
                         </a>
                       </div>
                     )}
@@ -921,9 +935,10 @@ export default function StudentEntry() {
                           <a 
                             href="#" 
                             onClick={(e) => { e.preventDefault(); setIsVideoModalOpen(true); }}
-                            className="inline-block mt-2 text-xs font-medium text-red-600 hover:text-red-800 italic hover:underline"
+                            className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-blue-600 hover:text-blue-800 italic hover:underline"
                           >
-                            Tutorial cara upload fotonya
+                            <Video className="w-3 h-3" />
+                            Klik Tutorial cara upload fotonya
                           </a>
                         </div>
                       </div>

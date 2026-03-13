@@ -31,15 +31,7 @@
   }
   
   .swal2-icon {
-    transform: scale(1) !important;
-    margin: 0.5rem auto 0.25rem !important;
-    width: 60px !important;
-    height: 60px !important;
-    border-width: 3px !important;
-  }
-
-  .swal2-icon .swal2-icon-content {
-    font-size: 36px !important;
+    margin: 1rem auto 0.5rem !important;
   }
   
   .swal2-actions {
