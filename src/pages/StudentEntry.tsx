@@ -31,30 +31,31 @@ export default function StudentEntry() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const videoTutorialUrl = "https://wogprdohptvfnmdanutd.supabase.co/storage/v1/object/sign/Video/video%20tutorial.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yNjJiN2ZiMi1kNjA5LTRmNjYtYTliOC1jMGMwYmM2ZjQ2YmYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJWaWRlby92aWRlbyB0dXRvcmlhbC5tcDQiLCJpYXQiOjE3NzMyMzU3MDQsImV4cCI6MTgwNDc3MTcwNH0.NiBqmCRzT477q_l3J48kYILqVAs8SZ4DqEEiXFdoTjQ";
 
-  useEffect(() => {
-    const showHonestyPopup = () => {
-      Swal.fire({
-        title: 'Wajib Dibaca',
-        icon: 'info',
-        html: `
-          <div class="text-center px-1">
-            <p class="text-gray-700 leading-relaxed font-medium text-sm sm:text-base">
-              isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. 
-              Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong
-            </p>
-          </div>
-        `,
-        showConfirmButton: false,
-        showCloseButton: true,
-        customClass: {
-          popup: 'rounded-[32px] border-0 shadow-2xl p-4 sm:p-6',
-          title: 'text-emerald-800 font-bold text-xl sm:text-2xl mt-2',
-          htmlContainer: 'mt-3 sm:mt-4',
-          closeButton: 'swal2-close-red'
-        }
-      });
-    };
+  const showHonestyPopup = () => {
+    Swal.fire({
+      title: '<span style="color: #dc2626;">Wajib Dibaca</span>',
+      icon: 'warning',
+      iconColor: '#dc2626',
+      html: `
+        <div class="text-center px-0,5">
+          <p class="text-gray-700 leading-relaxed font-small text-sm sm:text-base">
+            isilah Jurnal Ramadhan ini dengan Penuh Tanggung Jawab dengan penuh kejujuran tanpa ada kebohongan. 
+            Ingat !!! Allah Swt Maha Tahu Bagi Hambanya yang berbohong
+          </p>
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
+      customClass: {
+        popup: 'rounded-[32px] border-0 shadow-2xl p-4 sm:p-6',
+        title: 'font-bold text-xl sm:text-2xl mt-2',
+        htmlContainer: 'mt-3 sm:mt-4',
+        closeButton: 'swal2-close-red'
+      }
+    });
+  };
 
+  useEffect(() => {
     // Show on first load
     showHonestyPopup();
 
@@ -587,7 +588,11 @@ export default function StudentEntry() {
           <div className="text-center mb-8 sm:mb-10 relative">
             {isNisSubmitted && (
               <button 
-                onClick={() => setIsNisSubmitted(false)} 
+                onClick={() => {
+                  setIsNisSubmitted(false);
+                  setNis('');
+                  showHonestyPopup();
+                }} 
                 className="absolute left-0 top-0 p-2 text-emerald-700 hover:bg-emerald-100 rounded-full transition-colors"
                 title="Kembali"
               >
